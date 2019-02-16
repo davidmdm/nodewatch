@@ -1,9 +1,10 @@
 'use strict';
 
 const fs = require('fs');
+const path = require('path');
 const EventEmitter = require('events');
 
-const root = process.cwd();
+const cwd = process.cwd();
 
 const isDirectory = path => fs.statSync(path).isDirectory();
 
@@ -12,11 +13,11 @@ const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 const getAllSubDirs = root => {
   const dirs = fs
     .readdirSync(root)
-    .filter(x => x !== 'node_modules')
-    .map(x => root + '/' + x)
+    .filter(x => !['node_modules', '.git', '.vscode', '.idea'].includes(x))
+    .map(x => path.join(root, x))
     .filter(isDirectory);
 
-  return [root, ...[].concat(...dirs.map(getAllSubDirs))];
+  return [].concat.apply([root], dirs.map(getAllSubDirs));
 };
 
 const getBus = () => {
@@ -27,7 +28,7 @@ const getBus = () => {
   const watch = () => {
     let reset = null;
 
-    watchers = getAllSubDirs(root).map(dir => {
+    watchers = getAllSubDirs(cwd).map(dir => {
       return fs.watch(dir, () => {
         if (!reset) {
           bus.emit('change');

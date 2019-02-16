@@ -2,7 +2,7 @@
 
 const child_process = require('child_process');
 
-const args = process.argv[0].endsWith('node') ? process.argv.slice(2) : process.argv.slice(1);
+const args = process.argv.slice(2);
 const green = input => `\u{1b}[32m${input}\u{1b}[0m`;
 
 const spawn = bus => {
